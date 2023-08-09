@@ -1,0 +1,34 @@
+<launch>
+  
+    <arg name="rvizconfig" default="$(find rm_75_gazebo)/config/rviz_gazebo.rviz"/>
+
+    <!-- Launch Gazebo  -->
+    <include file="$(find rm_75_gazebo)/launch/arm_world.launch" />
+<!-- spawn_model启动了机器人模型robot_description（rm_75_bottom.urdf.xacro），名称为rm_75 -->
+
+
+    <!-- 关节状态控制器 -->
+    <!-- ros_control arm launch file -->
+    <include file="$(find rm_75_gazebo)/launch/arm_gazebo_states.launch" />   
+<!-- 启动关节控制器 -->
+<!-- 命名空间为arm？？？这是为什么 -->
+<!-- 运行robot_state_publisher节点，发布tf.  命名为/arm/joint_states -->
+
+
+
+
+    <!-- 关节轨迹控制器 -->
+    <!-- ros_control trajectory control dof arm launch file -->
+    <include file="$(find rm_75_gazebo)/launch/arm_75_trajectory_controller.launch" />
+
+
+
+
+    <!-- moveit 控制器 -->
+    <!-- moveit launch file -->
+    <include file="$(find rm_75_moveit_config)/launch/moveit_planning_execution.launch" >
+        <arg name="rviz_gazebo_config" value="$(arg rvizconfig)" />
+    </include>
+<!-- 核心： 通过运行moveit助手自动生成的move_group.launch，即可完全启动moveit控制器 -->
+<!-- 注意修改config/ros_controllers.yaml -->
+</launch>

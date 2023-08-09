@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<robot name="fabo_arm7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- robot_mrobot/mrobot_gazebo/urdf/dianzikeji -->
+   
+    <!-- <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/robot.urdf.xacro" /> -->
+	<xacro:include filename="$(find fabo_arm7_gazebo)/urdf/fabo_body.urdf.xacro" />
+	<!-- Body of mrobot, with plates, standoffs -->
+	<fabo_body/>
+
+
+	
+	
+	
+	
+	<!-- hokuyo -->
+    <!-- <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/hokuyo.urdf.xacro" />
+	<xacro:property name="laser_offset_x" value="0.25" />  
+	<xacro:property name="laser_offset_y" value="0" />
+	<xacro:property name="laser_offset_z" value="0.1" />  
+	<xacro:laser_hokuyo parent="plate_2_link" laser_offset_x="${laser_offset_x}" laser_offset_y="${laser_offset_y}" laser_offset_z="${laser_offset_z}" />
+	 -->
+	
+	
+	
+	
+	<!-- kinectv1 -->
+	<!-- <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/kinectv1_neck.urdf.xacro" />
+	<xacro:property name="camera_offset_x" value="0.0" />
+	<xacro:property name="camera_offset_y" value="0.0" />
+	<xacro:property name="camera_offset_z" value="1.15" />
+	<xacro:kinectv1_neck parent="base_footprint" camera_offset_x="${camera_offset_x}" camera_offset_y="${camera_offset_y}" camera_offset_z="${camera_offset_z}" /> -->
+
+
+
+
+
+
+	<!-- arm7 -->
+	<xacro:include filename="$(find rm_75_description)/urdf/rm_75.urdf.xacro" />
+	<xacro:property name="arm_offset_x" value="0.0" />
+	<xacro:property name="arm_offset_y" value="-0.20" />
+	<xacro:property name="arm_offset_z" value="0.62" />
+	<xacro:property name="arm_angleset_r" value="1.57" />
+	<xacro:property name="arm_angleset_p" value="0.0" />
+	<xacro:property name="arm_angleset_y" value="0.0" />
+	<xacro:arm7 parent="base_footprint" arm_offset_x="${arm_offset_x}" arm_offset_y="${arm_offset_y}" arm_offset_z="${arm_offset_z}"  arm_angleset_r="${arm_angleset_r}" arm_angleset_p="${arm_angleset_p}" arm_angleset_y="${arm_angleset_y}" />
+
+
+
+
+
+	<!-- kinectdk -->
+	<!-- <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/kinectdk.urdf.xacro"/>
+	<xacro:sensor_kinectdk parent="Link7"/> -->
+
+
+</robot>

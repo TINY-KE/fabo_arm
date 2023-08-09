@@ -1,0 +1,11 @@
+<launch>
+    <include file="$(find usb_cam)/launch/usb_cam-test.launch" />
+    <include file="$(find aruco_ros)/launch/single.launch" />
+
+    <node pkg="image_view" type="image_view" name="image_view">
+        <remap from="image" to="/aruco_single/result" />
+    </node>
+
+    <node pkg="rm_75_run" type="demo" name="demo" />
+    
+</launch>

@@ -1,0 +1,106 @@
+<launch>
+  
+    <arg name="rvizconfig" default="$(find fabo_arm7_gazebo)/config/rviz_gazebo.rviz"/>
+
+
+
+
+    <!-- 一、Launch Gazebo  -->
+    <!-- these are the arguments you can pass this launch file, for example paused:=true -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="world_name" value="$(find gazebo_world)/laptop.world"/> 
+
+    <!-- We resume the logic in empty_world.launch -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)" />
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+
+    <!-- Load the URDF into the ROS Parameter Server -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fabo_arm7_gazebo)/urdf/fabo_arm7_hokuyo_kinect_fix.urdf.xacro'" /> 
+
+    <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model fabo_arm7 -param robot_description"/> 
+    <!-- respawn="false"表示如果节点意外终止，不会自动重启。 -->
+
+
+
+
+
+    <!-- 二.1、关节状态控制器 -->
+    <!-- ros_control arm launch file -->
+    <!-- 关节控制器的配置参数 -->
+    <!-- 将关节控制器的配置参数加载到参数服务器中 -->
+    <rosparam file="$(find fabo_arm7_gazebo)/config/arm_gazebo_joint_states.yaml" command="load"/>
+
+    <!-- 启动关节状态器 -->
+    <node name="joint_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" ns="/fabo" args="joint_state_controller" />
+
+    <!-- 运行robot_state_publisher节点，发布tf  -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+        respawn="false" output="screen">
+        <remap from="/joint_states" to="/fabo/joint_states" />
+    </node>
+
+
+
+
+
+    <!-- 三、关节轨迹控制器 -->
+    <!-- ros_control trajectory control dof arm launch file -->
+    <rosparam file="$(find fabo_arm7_gazebo)/config/fabo_arm7_trajectory_control.yaml" command="load"/>
+
+    <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+          output="screen" ns="/fabo" args="arm_joint_controller"/>
+
+
+
+
+    <!-- 四、moveit 控制器 -->
+    <!-- 重要：修改fabo_arm7_moveit_config/config/ros_controllers.yaml文件 -->
+    <!-- move group文件是moveit工具箱自动生成的 -->
+    <!-- 
+        机器人配置：
+        MoveIt!提供了一个关节状态发布器节点，可用于发布机器人的当前配置。该节点接收机器人的关节位置作为输入，并将它们发布到适当的ROS话题。
+        您可以使用与MoveIt!常用的robot_state_publisher软件包来发布关节状态。该软件包接收机器人的URDF（统一机器人描述格式）文件作为输入，并根据当前配置发布关节状态。
+    -->
+    <!-- 
+        世界状态：
+        规划器所看到的世界的当前状态取决于传感器和环境的设计。一种常见的方法是使用ROS中的传感器消息来获取世界状态，并将其与规划器集成。
+        您可以使用MoveIt!提供的ROS接口和消息类型，例如使用ROS的PointCloud2消息类型来表示三维点云数据，或使用OccupancyGrid消息类型来表示二维占据栅格地图。
+        将传感器数据与规划器集成后，您可以将当前世界状态作为消息发布到适当的ROS话题，使其可供规划器和其他节点使用。
+        通过将上述步骤组合在一起，您可以配置MoveIt!以发布机器人的当前配置和规划器所见的世界的当前状态。请注意，具体的实现细节可能取决于您使用的机器人硬件、传感器和环境。 
+    -->
+    <arg name="rviz_gazebo_config" default="$(find fabo_arm7_gazebo)/config/rviz_gazebo.rviz"/>
+
+    <include file="$(find fabo_arm7_moveit_config)/launch/move_group.launch">
+    <arg name="publish_monitored_planning_scene" value="true" />
+    </include>
+
+
+    <!-- moveit可视化 -->
+    <include file="$(find fabo_arm7_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="rviz_config" value="$(arg rviz_gazebo_config)" />
+    </include>
+
+
+
+    <!-- 二.2、关节状态控制器 -->
+    <!-- We do not have a robot connected, so publish fake joint states -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <param name="/use_gui" value="true"/> 
+        <rosparam param="/source_list">[/fabo/joint_states]</rosparam>
+    </node>
+
+
+</launch>

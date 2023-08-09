@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: fabo_arm7_gazebo
+    relative_path: urdf/fabo_arm7_hokuyo_kinect_2.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/fabo_arm7.srdf
+  CONFIG:
+    author_name: zhjd
+    author_email: 1@qq.com
+    generated_timestamp: 1691442581
