@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="sensor_kinect" xmlns:xacro="http://ros.org/wiki/xacro">
-
+  <xacro:property name="M_PI" value="3.1415926535897931" />
   <!-- [1]  Microsoft Kinect / ASUS Xtion PRO Live for simulation -->
   <xacro:macro name="sim_3dsensor">
     <gazebo reference="camera_link">  
@@ -43,48 +43,37 @@
   </xacro:macro>
 
   <!-- [2]  pose from camera to robot -->
-  <xacro:property name="cam_px" value="0.0185" />    <!-- 62.5-44=18.5mm  -->
-  <xacro:property name="kinect_cam_py" value="0.0"/>  
+  <xacro:property name="cam_px" value="0.004925" />    <!-- 4.925mm  -->
+  <xacro:property name="cam_py" value="0.0"/>  
 	<xacro:property name="cam_pz" value="0.02" />
 	<xacro:property name="cam_or" value="0" />
 	<xacro:property name="cam_op" value="0" />
-	<xacro:property name="cam_oy" value="0" />
-  
+	<!-- <xacro:property name="cam_oy" value="${-M_PI/2}" /> -->
+  <!-- <xacro:property name="dis_py_between_rgb_and_depth" value="0.0"/> -->
 
 
   <!-- [3]  Parameterised in part by the values in turtlebot_properties.urdf.xacro -->
-  <xacro:macro name="sensor_kinectdk" params="parent">
-    <joint name="camera_rgb_joint" type="fixed">
-      <origin xyz="${cam_px} ${kinect_cam_py} ${cam_pz}" rpy="${cam_or} ${cam_op} ${cam_oy}"/>
+  <xacro:macro name="sensor_kinectdk" params="parent cam_oy dis_py_between_rgb_and_depth ">
+    <!-- joint connected to robot -->
+    
+    <joint name="camera_link_joint" type="fixed">
+      <origin xyz="${cam_px} ${cam_py} ${cam_pz}" rpy="${cam_or} ${cam_op} ${cam_oy}"/>
       <parent link="${parent}"/>
-      <child link="camera_rgb_frame" />
-    </joint>
-    <link name="camera_rgb_frame"/>
-
-    <joint name="camera_rgb_optical_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
-      <parent link="camera_rgb_frame" />
-      <child link="camera_rgb_optical_frame" />
-    </joint>
-    <link name="camera_rgb_optical_frame"/>
-
-    <joint name="camera_joint" type="fixed">
-      <origin xyz="0 ${-kinect_cam_py} 0" rpy="0 0 0"/>
-      <parent link="camera_rgb_frame"/>
       <child link="camera_link"/>
     </joint> 
-
+    
+    <!-- camera body -->
     <link name="camera_link">
       <visual>
-       <origin xyz="0 0 0" rpy="0 0 ${M_PI/2}"/>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="0.1 0.125 0.04"/>  
+          <box size="0.0994 0.1 0.04"/>  
         </geometry>
       </visual>
   	  <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   	    <geometry>
-  	      <box size="0.1 0.125 0.02"/>
+  	      <box size="0.0994 0.1 0.02"/>
   	    </geometry>
   	  </collision>
       <inertial>
@@ -96,11 +85,62 @@
       </inertial>
     </link>
 
+    <joint name="head_joint" type="fixed">
+      <origin xyz="0.0627 0 0" rpy="0 0 0"/>  <!-- 62.7mm -->
+      <parent link="camera_link"/>
+      <child link="head_link"/>
+    </joint> 
+
+    <link name="head_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.026 0.105 0.04"/>  
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.026 0.105 0.04"/> 
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="1e-5" /> <!-- 0.564 -->
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.003881243" ixy="0.0" ixz="0.0"
+                  iyy="0.000498940" iyz="0.0"
+                  izz="0.003879257" />
+      </inertial>
+    </link>
+    <gazebo reference="head_link">
+              <material>Gazebo/Red</material>
+    </gazebo>
+
+
+
+
+    <!-- camera image  -->
+    <joint name="camera_rgb_joint" type="fixed">
+      <origin xyz="0.080625 ${dis_py_between_rgb_and_depth/2} 0" rpy="0 0 0"/>  <!-- 80.625mm -->
+      <parent link="camera_link"/>
+      <child link="camera_rgb_frame" />
+    </joint>
+
+    <link name="camera_rgb_frame"/>
+
+    <joint name="camera_rgb_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <parent link="camera_rgb_frame" />
+      <child link="camera_rgb_optical_frame" />
+    </joint>
+
+    <link name="camera_rgb_optical_frame"/>
+
     <!-- The fixed joints & links below are usually published by static_transformers launched by the OpenNi launch 
          files. However, for Gazebo simulation we need them, so we add them here.
          (Hence, don't publish them additionally!) -->
 	<joint name="camera_depth_joint" type="fixed">
-	  <origin xyz="0 ${2 * -kinect_cam_py} 0" rpy="0 0 0" />
+	  <origin xyz="0 ${-dis_py_between_rgb_and_depth} 0" rpy="0 0 0" />
 	  <parent link="camera_rgb_frame" />
 	  <child link="camera_depth_frame" />
 	</joint>
@@ -112,7 +152,8 @@
 	  <child link="camera_depth_optical_frame" />
 	</joint>
 	<link name="camera_depth_optical_frame"/>
-	
+
+
 	<!-- Kinect sensor for simulation -->
 	<xacro:sim_3dsensor/>
   </xacro:macro>

@@ -2,9 +2,8 @@
 <robot name="fabo_arm7" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <!-- body -->
-	<xacro:include filename="$(find fabo_arm7_gazebo)/urdf/fabo_body.urdf.xacro" />
-	<!-- Body of mrobot, with plates, standoffs -->
-	<fabo_body/>
+	<!-- <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/fabo_body.urdf.xacro" /> -->
+	<!-- <fabo_body/> -->
 
 
 
@@ -27,26 +26,42 @@
 		</inertial>
 	</xacro:macro>
 	
-	<!-- <link name="dummy">
-	</link> -->
+
+
+	<link name="dummy">
+	</link>
 	
-	<!-- <joint name="dummy_joint" type="fixed">
+	<joint name="dummy_joint" type="fixed">
 		<parent link="dummy" />
 		<child link="base_link_arm" />
-	</joint> -->
-	<!-- ///////////////////////////////////////   bottom_joint   ////////////////////////////////////////// -->
-	<xacro:property name="arm_offset_x" value="0.0" />
-	<xacro:property name="arm_offset_y" value="-0.20" />
-	<xacro:property name="arm_offset_z" value="0.62" />
-	<xacro:property name="arm_angleset_r" value="1.57" />
-	<xacro:property name="arm_angleset_p" value="0.0" />
-	<xacro:property name="arm_angleset_y" value="0.0" />
-	<joint name="bottom_joint" type="fixed">
-		<origin xyz="0.0 -0.20 0.62" rpy="1.57 0 0" />
-		<!-- <origin xyz="${arm_offset_x} ${arm_offset_y} ${arm_offset_z}" rpy="${arm_angleset_r} ${arm_angleset_p} ${arm_angleset_y}"/> -->
-		<parent link="base_footprint"/>
-		<child link="base_link_arm"/>
 	</joint>
+	<!-- ///////////////////////////////////////   bottom_joint   ////////////////////////////////////////// -->
+	<joint name="bottom_joint" type="fixed">
+		<origin xyz="0.0 0 -0.62" rpy="0 0 0" />
+		<parent link="base_link_arm"/>
+		<child link="bottom_link"/>
+	</joint>
+	<link name="bottom_link">
+		<visual>
+		<origin xyz=" 0 0 -0.02"  rpy="0 0 0"/>
+		<geometry>
+			<box size="1 1 0.02" />
+		</geometry>
+		<material name="Brown" />
+		</visual>
+		<collision>
+		<origin xyz=" 0 0 -0.02"  rpy="0 0 0"/>
+		<geometry>
+			<box size="1 1 0.02" />
+		</geometry>
+		</collision>
+		<xacro:Box_inertial_matrix m="500" l="1" w="1" h="0.02"/>
+	</link>
+
+
+
+
+
 
 	<link
 		name="base_link_arm">
@@ -550,13 +565,8 @@
 
 
 	<!-- kinectdk -->
+	
 	<xacro:include filename="$(find fabo_arm7_gazebo)/urdf/kinectdk.urdf.xacro"/>
 	<xacro:sensor_kinectdk parent="Link7"/>
-	<!-- hokuyo -->
-    <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/hokuyo.urdf.xacro" />
-	<xacro:property name="laser_offset_x" value="0.25" />  
-	<xacro:property name="laser_offset_y" value="0" />
-	<xacro:property name="laser_offset_z" value="0.1" />  
-	<xacro:laser_hokuyo parent="plate_2_link" laser_offset_x="${laser_offset_x}" laser_offset_y="${laser_offset_y}" laser_offset_z="${laser_offset_z}" />
-	
+
 </robot>

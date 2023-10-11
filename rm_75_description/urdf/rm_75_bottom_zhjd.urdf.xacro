@@ -20,22 +20,21 @@
   
   <link name="dummy">
   </link>
+
+
+
+  <!-- ///////////////////////////////////////   bottom_joint   ////////////////////////////////////////// -->
   
   <joint name="dummy_joint" type="fixed">
     <parent link="dummy" />
-    <child link="base_link" />
+    <child link="bottom_link" />
   </joint>
-  <!-- ///////////////////////////////////////   bottom_joint   ////////////////////////////////////////// -->
-  <joint name="bottom_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0" />
-    <parent link="base_link"/>
-    <child link="bottom_link"/>
-  </joint>
+  
   <link name="bottom_link">
     <visual>
       <origin xyz=" 0 0 -0.02"  rpy="0 0 0"/>
       <geometry>
-        <!-- <box size="1 1 0.02" /> -->
+        <box size="1 1 0.02" />
       </geometry>
       <material name="Brown" />
     </visual>
@@ -48,8 +47,42 @@
     <xacro:Box_inertial_matrix m="500" l="1" w="1" h="0.02"/>
   </link>
   
+  <!-- ///////////////////////////////////////   bottom_2_joint   ////////////////////////////////////////// -->
+
+  <joint name="bottom_2_joint" type="fixed">
+    <origin xyz="0 0 0.4" rpy="0  0 -1.57" />
+    <parent link="bottom_link"/>
+    <child link="bottom_2_link"/>
+  </joint>
+
+
+  <link name="bottom_2_link">
+    <visual>
+      <origin xyz=" 0 0 0"  rpy="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.8" />
+      </geometry>
+      <material name="Brown" />
+    </visual>
+    <collision>
+      <origin xyz=" 0 0 -0.02"  rpy="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.8" />
+      </geometry>
+    </collision>
+    <xacro:Box_inertial_matrix m="500" l="1" w="1" h="0.02"/>
+  </link>
+  
+  <!-- ///////////////////////////////////////   arm   ////////////////////////////////////////// -->
+
+  <joint name="base_link_joint" type="fixed">
+    <origin xyz="0.25 0  0.0" rpy="0 1.57 0" />
+    <parent link="bottom_2_link"/>
+    <child link="base_link_arm"/>
+  </joint>
+
   <link
-    name="base_link">
+    name="base_link_arm">
     <inertial>
       <origin
         xyz="0.000433268851866144 3.54527840972405E-05 0.0599427623574736"
@@ -135,14 +168,14 @@
       xyz="0 0 0.2405"
       rpy="-1.5708 0 0" />
     <parent
-      link="base_link" />
+      link="base_link_arm" />
     <child
       link="Link1" />
     <axis
       xyz="0 -1 0" />
     <limit
-      lower="-3.5"
-      upper="3.5"
+      lower="-3.1"
+      upper="3.1"
       effort="60"
       velocity="3.14" />
     <dynamics
@@ -202,8 +235,8 @@
     <axis
       xyz="0 1 0" />
     <limit
-      lower="-3.5"
-      upper="3.5"
+      lower="-2.268"
+      upper="2.268"
       effort="60"
       velocity="3.14" />
     <dynamics
@@ -263,8 +296,8 @@
     <axis
       xyz="0 -1 0" />
     <limit
-      lower="-3.5"
-      upper="3.5"
+      lower="-3.1"
+      upper="3.1"
       effort="30"
       velocity="3.92" />
     <dynamics
@@ -324,8 +357,8 @@
     <axis
       xyz="0 1 0" />
     <limit
-      lower="-3.5"
-      upper="3.5"
+      lower="-2.355"
+      upper="2.355"
       effort="30"
       velocity="3.92" />
     <dynamics
@@ -385,8 +418,8 @@
     <axis
       xyz="0 -1 0" />
     <limit
-      lower="-3.5"
-      upper="3.5"
+      lower="-3.1"
+      upper="3.1"
       effort="10"
       velocity="3.92" />
     <dynamics
@@ -446,8 +479,8 @@
     <axis
       xyz="0 1 0" />
     <limit
-      lower="-3.5"
-      upper="3.5"
+      lower="-2.233"
+      upper="2.233"
       effort="10"
       velocity="3.92" />
     <dynamics
@@ -546,4 +579,12 @@
       <legacyModeNS>true</legacyModeNS>
     </plugin>
   </gazebo>
+
+
+  <!-- kinectdk -->  <!-- ${-M_PI/2} -->
+  <xacro:property name="M_PI" value="3.1415926535897931" />
+	<xacro:include filename="$(find fabo_arm7_gazebo)/urdf/kinectdk.urdf.xacro"/>
+	<xacro:sensor_kinectdk parent="Link7"  cam_oy="0"   dis_py_between_rgb_and_depth="0.0"/>
+
+
 </robot>

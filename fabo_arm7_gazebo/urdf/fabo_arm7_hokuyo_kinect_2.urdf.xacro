@@ -42,7 +42,7 @@
 	<xacro:property name="arm_angleset_p" value="0.0" />
 	<xacro:property name="arm_angleset_y" value="0.0" />
 	<joint name="bottom_joint" type="fixed">
-		<origin xyz="0.0 -0.20 0.62" rpy="1.57 0 0" />
+		<origin xyz="0.0 -0.10 0.62" rpy="1.57 0 0" />
 		<!-- <origin xyz="${arm_offset_x} ${arm_offset_y} ${arm_offset_z}" rpy="${arm_angleset_r} ${arm_angleset_p} ${arm_angleset_y}"/> -->
 		<parent link="base_footprint"/>
 		<child link="base_link_arm"/>
@@ -549,9 +549,11 @@
 
 
 
-	<!-- kinectdk -->
+	<!-- kinectdk -->  <!-- ${-M_PI/2} -->
+  	<xacro:property name="M_PI" value="3.1415926535897931" />
 	<xacro:include filename="$(find fabo_arm7_gazebo)/urdf/kinectdk.urdf.xacro"/>
-	<xacro:sensor_kinectdk parent="Link7"/>
+	<xacro:sensor_kinectdk parent="Link7"  cam_oy="${-M_PI/2}"   dis_py_between_rgb_and_depth="0.0"/>
+
 	<!-- hokuyo -->
     <xacro:include filename="$(find fabo_arm7_gazebo)/urdf/hokuyo.urdf.xacro" />
 	<xacro:property name="laser_offset_x" value="0.25" />  
